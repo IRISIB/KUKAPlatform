@@ -33,14 +33,18 @@ var vertexColors = [
 
 // Parameters controlling the size of the Robot's arm
 
-var BASE_HEIGHT      = 2.0;
-var BASE_WIDTH       = 5.0;
-var LOWER_ARM_HEIGHT = 5.0;
-var LOWER_ARM_WIDTH  = 0.5;
-var UPPER_ARM_HEIGHT = 5.0;
-var UPPER_ARM_WIDTH  = 0.5;
-var THIRD_ARM_HEIGHT = 5.0;
-var THIRD_ARM_WIDTH  = 0.5;
+var BASE_HEIGHT = 2.0;
+var BASE_WIDTH  = 5.0;
+var ARM1_HEIGHT = 5.0;
+var ARM1_WIDTH  = 0.5;
+var ARM2_HEIGHT = 3.0;
+var ARM2_WIDTH  = 0.5;
+var ARM3_HEIGHT = 2.0;
+var ARM3_WIDTH  = 0.5;
+var ARM4_HEIGHT = 2.0;
+var ARM4_WIDTH  = 0.5;
+var TOOL_HEIGHT = 1.0;
+var TOOL_WIDTH  = 1.0;
 
 // Shader transformation matrices
 
@@ -48,13 +52,15 @@ var modelViewMatrix, projectionMatrix;
 
 // Array of rotation angles (in degrees) for each rotation axis
 
-var Base = 0;
-var LowerArm = 1;
-var UpperArm = 2;
-var ThirdArm = 3;
+var axis1 = 0;
+var axis2 = 1;
+var axis3 = 2;
+var axis4 = 3;
+var axis5 = 4;
+var axis6 = 5;
 
 
-var theta= [ 0, 0, 0, 0];
+var theta= [ 30, 20, 70, 30, 100, 40];
 
 var angle = 0;
 
@@ -161,7 +167,12 @@ window.onload = function init() {
     document.getElementById("slider4").onchange = function(event) {
          theta[3] =  event.target.value;
     };
-
+    document.getElementById("slider5").onchange = function(event) {
+         theta[4] =  event.target.value;
+    };
+    document.getElementById("slider6").onchange = function(event) {
+         theta[5] =  event.target.value;
+    };
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
 
     projectionMatrix = ortho(-10, 10, -10, 10, -10, 10);
@@ -184,21 +195,10 @@ function base() {
 //----------------------------------------------------------------------------
 
 
-function upperArm() {
-    var s = scale4(UPPER_ARM_WIDTH, UPPER_ARM_HEIGHT, UPPER_ARM_WIDTH);
-    var instanceMatrix = mult(translate( 0.0, 0.5 * UPPER_ARM_HEIGHT, 0.0 ),s);
-    var t = mult(modelViewMatrix, instanceMatrix);
-    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
-}
-
-//----------------------------------------------------------------------------
-
-
-function lowerArm()
+function arm1()
 {
-    var s = scale4(LOWER_ARM_WIDTH, LOWER_ARM_HEIGHT, LOWER_ARM_WIDTH);
-    var instanceMatrix = mult( translate( 0.0, 0.5 * LOWER_ARM_HEIGHT, 0.0 ), s);
+    var s = scale4(ARM1_WIDTH, ARM1_HEIGHT, ARM1_WIDTH);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * ARM1_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
@@ -207,10 +207,21 @@ function lowerArm()
 //----------------------------------------------------------------------------
 
 
-function thirdArm()
+function arm2() {
+    var s = scale4(ARM2_WIDTH, ARM2_HEIGHT, ARM2_WIDTH);
+    var instanceMatrix = mult(translate( 0.0, 0.5 * ARM2_HEIGHT, 0.0 ),s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+//----------------------------------------------------------------------------
+
+
+function arm3()
 {
-    var s = scale4(THIRD_ARM_WIDTH, THIRD_ARM_HEIGHT, THIRD_ARM_WIDTH);
-    var instanceMatrix = mult( translate( 0.0, 0.5 * THIRD_ARM_HEIGHT, 0.0 ), s);
+    var s = scale4(ARM3_WIDTH, ARM3_HEIGHT, ARM3_WIDTH);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * ARM3_HEIGHT, 0.0 ), s);
     var t = mult(modelViewMatrix, instanceMatrix);
     gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
     gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
@@ -218,25 +229,56 @@ function thirdArm()
 
 //----------------------------------------------------------------------------
 
+
+function arm4()
+{
+    var s = scale4(ARM4_WIDTH, ARM4_HEIGHT, ARM4_WIDTH);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * ARM4_HEIGHT, 0.0 ), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+//----------------------------------------------------------------------------
+
+
+function tool()
+{
+    var s = scale4(TOOL_WIDTH, TOOL_HEIGHT, TOOL_WIDTH);
+    var instanceMatrix = mult( translate( 0.0, 0.5 * TOOL_HEIGHT, 0.0 ), s);
+    var t = mult(modelViewMatrix, instanceMatrix);
+    gl.uniformMatrix4fv( modelViewMatrixLoc,  false, flatten(t) );
+    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+}
+
+//----------------------------------------------------------------------------
 
 var render = function() {
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
-    modelViewMatrix = rotate(theta[Base], 0, 1, 0 );
+    modelViewMatrix = rotate(theta[axis1], 0, 1, 0 );
     base();
 
     modelViewMatrix = mult(modelViewMatrix, translate(0.0, BASE_HEIGHT, 0.0));
-    modelViewMatrix = mult(modelViewMatrix, rotate(theta[LowerArm], 0, 0, 1 ));
-    lowerArm();
+    modelViewMatrix = mult(modelViewMatrix, rotate(theta[axis2], 0, 0, 1 ));
+    arm1();
 
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, LOWER_ARM_HEIGHT, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[UpperArm], 0, 0, 1) );
-    upperArm();
+    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, ARM1_HEIGHT, 0.0));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[axis3], 0, 0, 1) );
+    arm2();
 	
-    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, UPPER_ARM_HEIGHT, 0.0));
-    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[ThirdArm], 0, 0, 1) );
-    upperArm();
+    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, ARM2_HEIGHT, 0.0));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[axis4], 0, 1, 0) );
+    arm3();
+	
+    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, ARM3_HEIGHT, 0.0));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[axis5], 0, 0, 1) );
+    arm4();
+	
+    modelViewMatrix  = mult(modelViewMatrix, translate(0.0, ARM4_HEIGHT, 0.0));
+    modelViewMatrix  = mult(modelViewMatrix, rotate(theta[axis6], 0, 1, 0) );
+    tool();
 
     requestAnimFrame(render);
 }
